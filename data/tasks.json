@@ -1,6 +1,18 @@
 [
     {
-        "text": "할일",
+        "text": "빨래 널기",
+        "done": false
+    },
+    {
+        "text": "영어학원 숙제 하기",
+        "done": true
+    },
+    {
+        "text": "Chapter 2-1 강의 듣기",
+        "done": true
+    },
+    {
+        "text": "Class101 후기 작성하기",
         "done": false
     }
 ]

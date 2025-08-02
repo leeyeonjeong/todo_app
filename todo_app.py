@@ -79,3 +79,58 @@ if st.session_state['tasks']:
 
 else:
     st.info("아직 할 일이 없습니다. 새로운 할 일을 추가해보세요!")
+
+MEMO_FILE = "data/memos.json"
+
+def load_memos():
+    if os.path.exists(MEMO_FILE):
+        with open(MEMO_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+def save_memos(memos):
+    os.makedirs(os.path.dirname(MEMO_FILE), exist_ok=True)
+    with open(MEMO_FILE, 'w', encoding='utf-8') as f:
+        json.dump(memos, f, ensure_ascii=False, indent=4)
+
+if 'memos' not in st.session_state:
+    st.session_state['memos'] = load_memos()
+
+def memo_feature_section():
+    st.header("나만의 메모장")
+
+    memo_content = st.text_area("새로운 메모를 입력하세요:", key="new_memo_input")
+    is_starred = st.checkbox("⭐️ 즐겨찾기로 등록", key="star_checkbox")
+
+    if st.button("메모 저장", key="sava_memo_button"):
+        if memo_content:
+            st.session_state['memos'].append({"text": memo_content, "star": is_starred})
+            save_memos(st.session_state['memos'])
+            st.success("메모가 성공적으로 저장되었습니다!")
+            st.session_state["new_memo_input"] = ""
+        else:
+            st.warning("메모 내용을 입력해주세요.")
+    
+    st.subheader("전체 메모 보기")
+
+    search_query = st.text_input("메모 검색", key="search_memo_input")
+    filter_option = st.selectbox("메모 필터", ("전체 메모", "⭐️ 즐겨찾기 메모"), key="filter_memo_select")
+
+    filtered_memos = []
+    for memo in st.session_state['memos']:
+        search_match = search_query.lower() in memo['text'].lower() if search_query else True
+        if filter_option == "⭐️ 즐겨찾기 메모":
+            if memo['star'] and search_match:
+                filtered_memos.append(memo)
+        else:
+            if search_match:
+                filtered_memos.append(memo)
+    
+    if filtered_memos:
+        for i, memo in enumerate(filtered_memos):
+            star_icon = "⭐️ " if memo['star'] else ""
+            st.write(f"- {star_icon}{memo['text']}")
+    else:
+        st.info("조건에 맞는 메모가 없습니다.")
+
+memo_feature_section()
